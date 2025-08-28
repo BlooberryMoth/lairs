@@ -7,6 +7,38 @@
     <title>Lairs Home Page</title>
 </head>
 <body>
-    
+    <input type="file" id="imageUpload" accept="image/*" onchange="upload()">
+    <img id="preview" src="#" alt="Image Preview">
 </body>
+<script>
+    function run(data, type) {
+        fetch(".", {
+            method: "POST",
+            body: JSON.stringify({
+                method: "fileUP/image",
+                location: "avatar",
+                imageType: type,
+                data: data
+            }),
+            headers: {
+                "Content-Type": "text/plain"
+            }
+        })
+        .then((response) => response.json())
+        .then((json) => console.log(json));
+    }
+
+    function upload() {
+        let file = document.querySelector('#imageUpload').files[0];
+
+        let reader = new FileReader();
+        reader.onload = (event) => {
+            let base64string = event.target.result;
+            document.getElementById('preview').src = base64string;
+            console.log(file.name.split('.')[1]);
+            run(base64string, file.name.split('.')[1]);
+        }
+        reader.readAsDataURL(file);
+    };
+</script>
 </html>

@@ -25,6 +25,18 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
         if not isinstance(data, (bytes, bytearray)): data = bytes(data, 'utf-8')
         self.wfile.write(data)
+
+    def do_POST(self) -> None:
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length)
+        
+        status, headers, data = HTTPHandler.handle_POST_request(body)
+
+        self.send_response(status)
+        for header in headers: self.send_header(*header)
+        self.end_headers()
+        if not isinstance(data, (bytes, bytearray)): data = bytes(data, 'utf-8')
+        self.wfile.write(data)
     
     def log_message(self, format, *args): pass
 
