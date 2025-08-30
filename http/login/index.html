@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Lairs Login</title>
+</head>
+<body>
+    <label for="passwd">email or handle:</label>
+    <input type="text" id="email" onchange="checkEmail()" onblur="checkEmail()">
+    <p id="emailexists"></p>
+    <label for="passwd">password:</label>
+    <input type="text" id="passwd">
+    <button>show</button>
+    <input type="submit" value="Submit">
+</body>
+<style>
+    input { display: block; }
+    input, button { color: black; }
+</style>
+<script src="/global.js"></script>
+<script>
+    async function checkEmail() {
+        let response = await POST({
+            method: "checkEmail",
+            data: document.querySelector('#email').value
+        });
+        if (response['found']) document.querySelector('#emailexists').innerHTML = "y";
+        else document.querySelector('#emailexists').innerHTML = "n";
+    }
+
+    async function hash(input) {
+        let salt = new Uint8Array(16);
+        crypto.getRandomValues(salt);
+        let encoded = new TextEncoder().encode(input);
+        let buffer = new Uint8Array(salt.length + encoded.length);
+        buffer.set(salt);
+        buffer.set(encoded, salt.length);
+        buffer = await crypto.subtle.digest("SHA-256", buffer);
+        let array = Array.from(new Uint8Array(buffer));
+        let hash = Array.from(new Uint8Array(buffer))
+            .map(item => item.toString(16).padStart(2, "0"))
+            .join("");
+        return hash;
+    }
+
+    let passin = document.querySelector('#passwd');
+    passin.addEventListener('input', e => {
+        passin.type = "password";
+    });
+    document.querySelector('button').addEventListener('click', e => {
+        passin.type = passin.type === 'text' ? 'password' : 'text';
+    });
+</script>
+</html>

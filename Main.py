@@ -33,6 +33,7 @@ class Server(BaseHTTPRequestHandler):
         status, headers, data = HTTPHandler.handle_POST_request(body)
 
         self.send_response(status)
+        self.send_header("Access-Control-Allow-Origin", "*")
         for header in headers: self.send_header(*header)
         self.end_headers()
         if not isinstance(data, (bytes, bytearray)): data = bytes(data, 'utf-8')

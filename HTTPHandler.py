@@ -1,4 +1,4 @@
-import base64, json, ProfileHandler
+import json, os, ProfileHandler
 from Main import Server
 
 
@@ -9,9 +9,18 @@ def handle_GET_request(url: list[str], parameters: dict) -> tuple[int, list[tupl
             match url[0]:
                 case "profile":
                     if len(url) == 1:
-                        try: parameters["access_token"]
-                        except: return 302, [("Location", "../")], ""
-                    elif len(url) == 2: return ProfileHandler.fetch(name)
+                        try: parameters['access_token']
+                        except: return 302, [("Location", "/")], ""
+                    elif len(url) == 2:
+                        if url[1] == "edit":
+                            try: parameters['access_token']
+                            except: return 302, [("Location", "/login")], ""
+                        else:
+                            if not name.startswith('@'): return 308, [("Location", f"./@{name}")], ""
+                            for account in os.listdir('./http/profile'):
+                                if name in os.listdir(f'./http/profile/{account}'): break
+                            else: print("test")
+                            return ProfileHandler.fetch(account)
         try:
             with open(f'./http/{"/".join(url)}/index.html') as file_in: index = file_in.buffer.read()
             return 200, [("Content-Type", "text/html")], index
@@ -33,13 +42,15 @@ def handle_POST_request(data: bytes) -> tuple[int, list[tuple[str, str]], str]:
         case "fileUP/image":
             try: location = data['location']
             except: return error(400, "No location provided for image upload.")
-            if location not in ["avatar", "banner", "post"]: return error(400, "Invalid location for image upload")
-            try: image_type, image_data = data['data'].split(',')
-            except: return error(400, "Invalid file/file type.")
-            image_type = image_type.split('/')[1].split(';')[0]
-
-            if image_type == "png":
-                with open('./http/profile/@lairs/avatar.png', 'wb') as file_out: file_out.write(base64.b64decode(image_data))
-                return 200, [], ""
+            match location:
+                case "avatar": return ProfileHandler.update_avatar("@lairs", data['data'])
+                case "banner": ...
+                case "post": ...
+                case _: return error(400, "Invalid location.")
+        case "checkEmail":
+            try: login = data['data'].lower()
+            except: return error(400, "Invalid email provided.")
+            if f"@{login.removeprefix('@')}.json" in os.listdir('./accounts'): return 200, [("Content-Type", "application/json")], json.dumps({"found": True})
+            
 
 def error(status: int, reason: str): return status, [("Content-Type", "application/json")], json.dumps({"error": status, "reason": reason})

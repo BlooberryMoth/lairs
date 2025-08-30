@@ -7,25 +7,17 @@
     <title>Lairs Home Page</title>
 </head>
 <body>
-    <input type="file" id="imageUpload" accept="image/*" onchange="upload()">
+    <input type="file" id="imageUpload" accept="image/png, image/jpeg" onchange="upload()">
     <img id="preview" src="#" alt="Image Preview">
 </body>
+<script src="/global.json"></script>
 <script>
     function run(data, type) {
-        fetch(".", {
-            method: "POST",
-            body: JSON.stringify({
-                method: "fileUP/image",
-                location: "avatar",
-                imageType: type,
-                data: data
-            }),
-            headers: {
-                "Content-Type": "text/plain"
-            }
-        })
-        .then((response) => response.json())
-        .then((json) => console.log(json));
+        POST({
+            method: "fileUP/image",
+            location: "avatar",
+            data: data
+        });
     }
 
     function upload() {
