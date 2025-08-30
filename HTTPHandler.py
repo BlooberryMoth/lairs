@@ -18,8 +18,9 @@ def handle_GET_request(url: list[str], parameters: dict) -> tuple[int, list[tupl
                         else:
                             if not name.startswith('@'): return 308, [("Location", f"./@{name}")], ""
                             for account in os.listdir('./http/profile'):
+                                if not os.path.isdir(f'./http/profile/{account}'): continue
                                 if name in os.listdir(f'./http/profile/{account}'): break
-                            else: print("test")
+                            else: return Server.fourohfour
                             return ProfileHandler.fetch(account)
         try:
             with open(f'./http/{"/".join(url)}/index.html') as file_in: index = file_in.buffer.read()
@@ -48,9 +49,12 @@ def handle_POST_request(data: bytes) -> tuple[int, list[tuple[str, str]], str]:
                 case "post": ...
                 case _: return error(400, "Invalid location.")
         case "checkEmail":
-            try: login = data['data'].lower()
+            try: email = data['data'].lower()
             except: return error(400, "Invalid email provided.")
-            if f"@{login.removeprefix('@')}.json" in os.listdir('./accounts'): return 200, [("Content-Type", "application/json")], json.dumps({"found": True})
+            for account in os.listdir('./accounts'):
+                if email in os.listdir(f'./accounts/{account}'): break
+            else: return 200, [("Content-Type", "application/json")], json.dumps({"found": False})
+            return 200, [("Content-Type", "application/json")], json.dumps({"found": True})
             
 
 def error(status: int, reason: str): return status, [("Content-Type", "application/json")], json.dumps({"error": status, "reason": reason})

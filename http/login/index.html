@@ -7,16 +7,17 @@
     <title>Lairs Login</title>
 </head>
 <body>
-    <label for="passwd">email or handle:</label>
+    <label for="passwd">email:</label>
     <input type="text" id="email" onchange="checkEmail()" onblur="checkEmail()">
-    <p id="emailexists"></p>
+    <p id="emailexists" style="display: inline-block"></p>
+    <br>
     <label for="passwd">password:</label>
     <input type="text" id="passwd">
     <button>show</button>
-    <input type="submit" value="Submit">
+    <input type="submit" value="Submit" style="display: block;">
 </body>
 <style>
-    input { display: block; }
+    input { display: inline-block; }
     input, button { color: black; }
 </style>
 <script src="/global.js"></script>

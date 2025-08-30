@@ -1,0 +1,5 @@
+{
+    "handle": "lairs",
+    "hash": "",
+    "salt": ""
+}
